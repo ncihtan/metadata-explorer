@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  List,
-  ListItem,
-  Typography,
-  Grid
-} from "@material-ui/core";
+import { Card, CardHeader, CardContent, Grid } from "@material-ui/core";
 import { useHTANMetadataExplorerStore } from "../../../data/store";
 import { Sheets } from "../../../data/sheetsClient";
 import ChipButton from "../ChipButton";

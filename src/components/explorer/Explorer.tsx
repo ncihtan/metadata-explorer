@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid, Typography } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import { Sheets } from "../../data/sheetsClient";
 import ParticipantCard from "./participants/ParticipantCard";
 import TimepointCard from "./timepoints/TimepointCard";
