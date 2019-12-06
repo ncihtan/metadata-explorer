@@ -1,8 +1,10 @@
 import React from "react";
-import { Grid, List, ListItem, Typography, Divider } from "@material-ui/core";
+import { Grid, List, Typography, Divider, ListItem } from "@material-ui/core";
 import { AccessTime } from "@material-ui/icons";
 import ChipButton from "./ChipButton";
 import { useHTANMetadataExplorerStore } from "../../../data/store";
+import groupBy from "lodash/groupBy";
+import BiospecimenList from "./BiospecimenList";
 
 export interface TimepointListProps {
   timepointMap: { [timepoint: string]: any[] };
@@ -22,6 +24,14 @@ const TimepointList: React.FC<TimepointListProps> = ({ timepointMap }) => {
       setTimepoint(timepoints[0]);
     }
   }, [store.selectedTimepoint, timepoints]);
+
+  const biospecimens =
+    store.selectedTimepoint && timepointMap[store.selectedTimepoint];
+
+  // Group specimens by type
+  const typeMap =
+    biospecimens &&
+    groupBy(biospecimens, store.sheetsConfig.biospecimenTypeColumn);
 
   return (
     <Grid container spacing={2} direction="column">
@@ -43,25 +53,19 @@ const TimepointList: React.FC<TimepointListProps> = ({ timepointMap }) => {
         <Divider light />
       </Grid>
       <Grid item>
-        <List>
-          {store.selectedTimepoint ? (
-            timepointMap[store.selectedTimepoint].map((data: any) => {
-              const biospecimenId =
-                data[store.sheetsConfig.biospecimenIdColumn];
-              const biospecimenType =
-                data[store.sheetsConfig.biospecimenTypeColumn];
+        {typeMap ? (
+          <List>
+            {Object.keys(typeMap).map(t => {
               return (
-                <ListItem key={biospecimenId}>
-                  <Typography>
-                    {biospecimenId}, {biospecimenType}
-                  </Typography>
+                <ListItem>
+                  <BiospecimenList key={t} type={t} biospecimens={typeMap[t]} />
                 </ListItem>
               );
-            })
-          ) : (
-            <Typography color="textSecondary">Select a timepoint</Typography>
-          )}
-        </List>
+            })}
+          </List>
+        ) : (
+          <Typography color="textSecondary">Select a timepoint</Typography>
+        )}
       </Grid>
     </Grid>
   );

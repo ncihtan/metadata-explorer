@@ -1,4 +1,5 @@
 import React from "react";
+import groupBy from "lodash/groupBy";
 import { Card, CardHeader, CardContent } from "@material-ui/core";
 import { useHTANMetadataExplorerStore } from "../../../data/store";
 import { Sheets } from "../../../data/sheetsClient";
@@ -7,7 +8,7 @@ import { makeStyles } from "@material-ui/styles";
 
 const useStyles = makeStyles({
   root: {
-    minWidth: "40rem"
+    width: "35rem"
   }
 });
 
@@ -28,14 +29,10 @@ const TimepointCard: React.FC<TimepointCardProps> = ({ sheets }) => {
     )
     .toArray();
 
-  const timepointMap = filteredData.reduce((acc, row) => {
-    const timepoint = row[store.sheetsConfig.timepointColumn];
-    const timepointData = acc[timepoint] || [];
-    return {
-      ...acc,
-      [timepoint]: [...timepointData, row]
-    };
-  }, {});
+  const timepointMap = groupBy(
+    filteredData,
+    store.sheetsConfig.timepointColumn
+  );
 
   return (
     <Card className={classes.root}>
