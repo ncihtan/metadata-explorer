@@ -1,4 +1,6 @@
 import axios from "axios";
+import omit from "lodash/omit";
+import mapValues from "lodash/mapValues";
 import { DataFrame } from "data-forge";
 
 interface Unfetched {
@@ -53,6 +55,7 @@ export function parseGoogleSheetsUrl(url: string): string | null {
  */
 function buildHTANSheets(spreadsheet: gapi.client.sheets.Spreadsheet): Sheets {
   const title = spreadsheet.properties!.title!;
+
   const sheets = spreadsheet.sheets!.reduce((acc, sheet) => {
     let rawData: string[][] = [];
     if (sheet.data) {
@@ -61,23 +64,53 @@ function buildHTANSheets(spreadsheet: gapi.client.sheets.Spreadsheet): Sheets {
         rawData = data.rowData
           .map(({ values }) => {
             if (values) {
-              return values
-                .map(value => value.formattedValue!)
-                .filter(v => !!v);
+              return values.map(value => value.formattedValue!);
             }
             return [];
           })
-          .filter(row => row.length > 0);
+          .filter(row => row.filter(v => !!v).length > 0);
       }
     }
     return { ...acc, [sheet.properties!.title!]: rawData };
   }, {} as Sheets["sheets"]);
 
+  const df = joinSheetsAsDf(sheets);
+
   return {
     title,
     sheets,
-    df: new DataFrame()
+    df
   };
+}
+
+function joinSheetsAsDf(sheets: Sheets["sheets"]): DataFrame {
+  const sheetDfs = mapValues(sheets, data => {
+    const [columnNames, ...rows] = data;
+    return new DataFrame({ columnNames, rows });
+  });
+
+  function joinOnId(left: DataFrame, right: DataFrame): DataFrame {
+    // @ts-ignore
+    return left.joinOuterLeft(
+      right,
+      l => l.HTAN_BIOSPECIMEN_ID,
+      r => r.HTAN_BIOSPECIMEN_ID,
+      (l, r) => ({ ...l, ...omit(r, "HTAN_BIOSPECIMEN_ID") })
+    );
+  }
+
+  const joinedDf = joinOnId(
+    joinOnId(
+      joinOnId(
+        sheetDfs["Biospecimens"],
+        sheetDfs["Biospecimen Temporal Relationships"]
+      ),
+      sheetDfs["Biospecimen Spatial Relationships"]
+    ),
+    sheetDfs["Clinical - Demographic"]
+  );
+
+  return joinedDf;
 }
 
 export async function fetchSheets(sheetsUrl: string): Promise<SheetsApiResult> {
