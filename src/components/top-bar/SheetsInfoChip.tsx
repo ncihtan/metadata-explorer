@@ -13,14 +13,15 @@ const SheetsInfoChip: React.FC = () => {
     <Tooltip title="Clear imported metadata">
       <Chip
         color="primary"
+        variant="outlined"
         label={store.sheets.payload.title}
         onDelete={handleDelete}
       />
     </Tooltip>
   ) : store.sheets.status === "will-fetch" ? (
-    <Chip label={"Loading metadata..."} />
+    <Chip label={"Loading metadata..."} variant="outlined" />
   ) : (
-    <Chip color="secondary" label="No metadata imported." />
+    <Chip color="secondary" label="No metadata imported." variant="outlined" />
   );
 };
 

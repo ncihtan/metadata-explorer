@@ -29,6 +29,17 @@ export interface Sheets {
   df: DataFrame;
 }
 
+export interface SheetsConfig {
+  biospecimenIdColumn: string;
+  participantIdColumn: string;
+  timepointColumn: string;
+  biospecimenTypeColumn: string;
+  biospecimenSheetTitle: string;
+  clinicalSheetTitle: string;
+  temporalSheetTitle: string;
+  spatialSheetTitle: string;
+}
+
 export type SheetsApiResult = Fetch<Sheets>;
 
 /**
@@ -53,7 +64,10 @@ export function parseGoogleSheetsUrl(url: string): string | null {
  * @param spreadsheet The JSON payload.
  * @returns Spreadsheet metadata and containing data
  */
-function buildHTANSheets(spreadsheet: gapi.client.sheets.Spreadsheet): Sheets {
+function buildHTANSheets(
+  spreadsheet: gapi.client.sheets.Spreadsheet,
+  config: SheetsConfig
+): Sheets {
   const title = spreadsheet.properties!.title!;
 
   const sheets = spreadsheet.sheets!.reduce((acc, sheet) => {
@@ -74,7 +88,7 @@ function buildHTANSheets(spreadsheet: gapi.client.sheets.Spreadsheet): Sheets {
     return { ...acc, [sheet.properties!.title!]: rawData };
   }, {} as Sheets["sheets"]);
 
-  const df = joinSheetsAsDf(sheets);
+  const df = joinSheetsAsDf(sheets, config);
 
   return {
     title,
@@ -83,37 +97,70 @@ function buildHTANSheets(spreadsheet: gapi.client.sheets.Spreadsheet): Sheets {
   };
 }
 
-function joinSheetsAsDf(sheets: Sheets["sheets"]): DataFrame {
+function joinSheetsAsDf(
+  sheets: Sheets["sheets"],
+  config: SheetsConfig
+): DataFrame {
   const sheetDfs = mapValues(sheets, data => {
     const [columnNames, ...rows] = data;
     return new DataFrame({ columnNames, rows });
+  });
+
+  // Infer participants
+  const participantsData = sheetDfs[config.biospecimenSheetTitle]
+    .select(row => {
+      const biospecimenId = row[config.biospecimenIdColumn] as string;
+      const participantId = biospecimenId.split("_", 2).join("_");
+      return [biospecimenId, participantId];
+    })
+    .toArray();
+  const participantsDf = new DataFrame({
+    rows: participantsData,
+    columnNames: [config.biospecimenIdColumn, config.participantIdColumn]
   });
 
   function joinOnId(left: DataFrame, right: DataFrame): DataFrame {
     // @ts-ignore
     return left.joinOuterLeft(
       right,
-      l => l.HTAN_BIOSPECIMEN_ID,
-      r => r.HTAN_BIOSPECIMEN_ID,
-      (l, r) => ({ ...l, ...omit(r, "HTAN_BIOSPECIMEN_ID") })
+      l => l[config.biospecimenIdColumn],
+      r => r[config.biospecimenIdColumn],
+      (l, r) => ({ ...l, ...omit(r, config.biospecimenIdColumn) })
     );
   }
 
   const joinedDf = joinOnId(
     joinOnId(
       joinOnId(
-        sheetDfs["Biospecimens"],
-        sheetDfs["Biospecimen Temporal Relationships"]
+        joinOnId(
+          sheetDfs[config.biospecimenSheetTitle],
+          sheetDfs[config.temporalSheetTitle]
+        ),
+        sheetDfs[config.spatialSheetTitle]
       ),
-      sheetDfs["Biospecimen Spatial Relationships"]
+      sheetDfs[config.clinicalSheetTitle]
     ),
-    sheetDfs["Clinical - Demographic"]
+    participantsDf
   );
 
-  return joinedDf;
+  const sortedDf = joinedDf
+    .orderBy(row =>
+      // Order by Participant ID
+      parseInt(row[config.participantIdColumn].split("_").slice(-1))
+    )
+    .orderBy(row =>
+      // Order by Biospecimen ID
+      parseInt(row[config.biospecimenIdColumn].split("_").slice(-1))
+    );
+
+  // @ts-ignore
+  return sortedDf;
 }
 
-export async function fetchSheets(sheetsUrl: string): Promise<SheetsApiResult> {
+export async function fetchSheets(
+  sheetsUrl: string,
+  config: SheetsConfig
+): Promise<SheetsApiResult> {
   const sheetId = parseGoogleSheetsUrl(sheetsUrl);
 
   if (!sheetId) {
@@ -131,7 +178,7 @@ export async function fetchSheets(sheetsUrl: string): Promise<SheetsApiResult> {
         }
       }
     );
-    const payload = buildHTANSheets(data);
+    const payload = buildHTANSheets(data, config);
 
     return { status: "fetched", payload };
   } catch (e) {

@@ -1,5 +1,6 @@
 import React from "react";
-import { fetchSheets, SheetsApiResult } from "./sheetsClient";
+import { fetchSheets, SheetsApiResult, SheetsConfig } from "./sheetsClient";
+import omit from "lodash/omit";
 
 type ActionBuilder<T, P> = { type: T; payload: P };
 type SetterBuilder<K extends keyof State> = ActionBuilder<K, State[K]>;
@@ -7,17 +8,42 @@ type Action =
   | SetterBuilder<"refresh">
   | SetterBuilder<"sheets">
   | SetterBuilder<"sheetsUrl">
-  | SetterBuilder<"selectedBiospecimenId">;
+  | SetterBuilder<"selectedTimepoint">
+  | SetterBuilder<"selectedBiospecimenId">
+  | SetterBuilder<"selectedParticipantId">;
 
 interface State {
   refresh: boolean;
   sheets: SheetsApiResult;
   sheetsUrl?: string;
+  sheetsConfig: SheetsConfig;
+  selectedTimepoint?: string;
+  selectedParticipantId?: string;
   selectedBiospecimenId?: string;
 }
 
 function reducer(state: State, action: Action): State {
-  return { ...state, [action.type]: action.payload };
+  // Cancel actions that don't update the data
+  if (state[action.type] === action.payload) {
+    return state;
+  }
+
+  switch (action.type) {
+    case "selectedParticipantId":
+      // Clear selected timepoint and biospecimen if participant changes
+      return {
+        ...omit(state, ["selectedTimepoint", "selectedBiospecimenId"]),
+        selectedParticipantId: action.payload
+      };
+    case "selectedTimepoint":
+      // Clear selected biospecimen if timepoint changes
+      return {
+        ...omit(state, ["selectedBiospecimenId"]),
+        selectedTimepoint: action.payload
+      };
+    default:
+      return { ...state, [action.type]: action.payload };
+  }
 }
 
 export interface HTANMetadataExplorerStore {
@@ -31,7 +57,17 @@ const cachedSheetsUrl = localStorage.getItem(sheetsUrlStorageKey) || undefined;
 const initialState: State = {
   refresh: false,
   sheets: { status: cachedSheetsUrl ? "will-fetch" : "unfetched" },
-  sheetsUrl: cachedSheetsUrl
+  sheetsUrl: cachedSheetsUrl,
+  sheetsConfig: {
+    participantIdColumn: "HTAN_PARTICIPANT_ID",
+    biospecimenIdColumn: "HTAN_BIOSPECIMEN_ID",
+    timepointColumn: "TIMEPOINT_LABEL",
+    biospecimenTypeColumn: "BIOSPECIMEN_TYPE",
+    biospecimenSheetTitle: "Biospecimens",
+    clinicalSheetTitle: "Clinical - Demographic",
+    temporalSheetTitle: "Biospecimen Temporal Relationships",
+    spatialSheetTitle: "Biospecimen Spatial Relationships"
+  }
 };
 
 const HTANMetadataExplorerStoreContext = React.createContext<
@@ -46,10 +82,11 @@ const HTANMetadataExplorerStoreContext = React.createContext<
 export const HTANMetadataExplorerStoreProvider: React.FC = props => {
   const [store, dispatch] = React.useReducer(reducer, initialState);
 
+  // A callback that retriggers on changes to the sheetsUrl or sheetsConfig
   const hydrate = React.useCallback(() => {
     if (store.sheetsUrl) {
       dispatch({ type: "sheets", payload: { status: "will-fetch" } });
-      fetchSheets(store.sheetsUrl).then(sheets => {
+      fetchSheets(store.sheetsUrl, store.sheetsConfig).then(sheets => {
         dispatch({
           type: "sheets",
           payload: sheets
@@ -62,9 +99,10 @@ export const HTANMetadataExplorerStoreProvider: React.FC = props => {
     } else {
       dispatch({ type: "sheets", payload: { status: "unfetched" } });
     }
-  }, [store.sheetsUrl]);
-
+  }, [store.sheetsUrl, store.sheetsConfig]);
   React.useEffect(() => hydrate(), [hydrate]);
+
+  // Fire a data refresh
   React.useEffect(() => {
     if (store.refresh) {
       hydrate();
