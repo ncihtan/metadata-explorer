@@ -5,11 +5,12 @@ import {
   CardContent,
   List,
   ListItem,
-  Typography
+  Typography,
+  Grid
 } from "@material-ui/core";
 import { useHTANMetadataExplorerStore } from "../../../data/store";
 import { Sheets } from "../../../data/sheetsClient";
-import ChipButton from "../timepoints/ChipButton";
+import ChipButton from "../ChipButton";
 import { Face } from "@material-ui/icons";
 
 export interface ParticipantsListProps {
@@ -36,20 +37,20 @@ const ParticipantCard: React.FC<ParticipantsListProps> = ({ sheets }) => {
 
   return (
     <Card>
-      <CardHeader title={"Participants"}></CardHeader>
+      <CardHeader title={"Participants"} />
       <CardContent>
-        <List dense>
+        <Grid container spacing={1}>
           {ids.map(id => (
-            <ListItem key={id}>
+            <Grid item key={id}>
               <ChipButton
                 label={id}
                 avatar={<Face />}
                 onClick={() => setParticipant(id)}
                 selected={id === store.selectedParticipantId}
               />
-            </ListItem>
+            </Grid>
           ))}
-        </List>
+        </Grid>
       </CardContent>
     </Card>
   );

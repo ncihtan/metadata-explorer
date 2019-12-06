@@ -1,10 +1,10 @@
 import React from "react";
 import { Grid, List, Typography, Divider, ListItem } from "@material-ui/core";
 import { AccessTime } from "@material-ui/icons";
-import ChipButton from "./ChipButton";
+import ChipButton from "../ChipButton";
 import { useHTANMetadataExplorerStore } from "../../../data/store";
 import groupBy from "lodash/groupBy";
-import BiospecimenList from "./BiospecimenList";
+import SpecimenTypeList from "./SpecimenTypeList";
 
 export interface TimepointListProps {
   timepointMap: { [timepoint: string]: any[] };
@@ -51,14 +51,16 @@ const TimepointList: React.FC<TimepointListProps> = ({ timepointMap }) => {
       </Grid>
       <Grid item>
         <Divider light />
-      </Grid>
-      <Grid item>
         {typeMap ? (
           <List>
             {Object.keys(typeMap).map(t => {
               return (
                 <ListItem>
-                  <BiospecimenList key={t} type={t} biospecimens={typeMap[t]} />
+                  <SpecimenTypeList
+                    key={t}
+                    type={t}
+                    biospecimens={typeMap[t]}
+                  />
                 </ListItem>
               );
             })}

@@ -4,21 +4,12 @@ import { Card, CardHeader, CardContent } from "@material-ui/core";
 import { useHTANMetadataExplorerStore } from "../../../data/store";
 import { Sheets } from "../../../data/sheetsClient";
 import TimepointList from "./TimepointList";
-import { makeStyles } from "@material-ui/styles";
-
-const useStyles = makeStyles({
-  root: {
-    width: "35rem"
-  }
-});
 
 export interface TimepointCardProps {
   sheets: Sheets;
 }
 
 const TimepointCard: React.FC<TimepointCardProps> = ({ sheets }) => {
-  const classes = useStyles();
-
   const { store } = useHTANMetadataExplorerStore();
 
   const filteredData = sheets.df
@@ -35,8 +26,8 @@ const TimepointCard: React.FC<TimepointCardProps> = ({ sheets }) => {
   );
 
   return (
-    <Card className={classes.root}>
-      <CardHeader title={"Timepoints"}></CardHeader>
+    <Card>
+      <CardHeader title={"Timepoints"} />
       <CardContent>
         <TimepointList timepointMap={timepointMap} />
       </CardContent>
