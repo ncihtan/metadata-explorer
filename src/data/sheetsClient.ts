@@ -2,6 +2,7 @@ import axios from "axios";
 import omit from "lodash/omit";
 import mapValues from "lodash/mapValues";
 import { DataFrame } from "data-forge";
+import { buildSpecTree } from "./specTree";
 
 interface Unfetched {
   status: "unfetched";
@@ -34,6 +35,8 @@ export interface SheetsConfig {
   participantIdColumn: string;
   timepointColumn: string;
   biospecimenTypeColumn: string;
+  biospecimenParentColumn: string;
+  biospecimenNeighborColumn: string;
   biospecimenSheetTitle: string;
   clinicalSheetTitle: string;
   temporalSheetTitle: string;
@@ -89,6 +92,16 @@ function buildHTANSheets(
   }, {} as Sheets["sheets"]);
 
   const df = joinSheetsAsDf(sheets, config);
+
+  buildSpecTree(
+    df
+      .select(row => ({
+        id: row[config.biospecimenIdColumn],
+        parent: row[config.biospecimenParentColumn],
+        type: row[config.biospecimenTypeColumn]
+      }))
+      .toArray()
+  );
 
   return {
     title,

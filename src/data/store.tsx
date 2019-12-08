@@ -63,6 +63,8 @@ const initialState: State = {
     biospecimenIdColumn: "HTAN_BIOSPECIMEN_ID",
     timepointColumn: "TIMEPOINT_LABEL",
     biospecimenTypeColumn: "BIOSPECIMEN_TYPE",
+    biospecimenNeighborColumn: "ADJACENT_BIOSPECIMEN",
+    biospecimenParentColumn: "PARENT_ID",
     biospecimenSheetTitle: "Biospecimens",
     clinicalSheetTitle: "Clinical - Demographic",
     temporalSheetTitle: "Biospecimen Temporal Relationships",
