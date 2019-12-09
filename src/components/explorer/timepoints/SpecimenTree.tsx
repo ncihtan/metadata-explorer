@@ -23,10 +23,12 @@ export interface SpecimenTreeProps {
 }
 
 const SpecimenTree: React.FC<SpecimenTreeProps> = props => {
+  const classes = useStyles();
+
   return (
-    <List>
+    <List dense disablePadding>
       {props.treeRoots.map(root => (
-        <ListItem key={root.id}>
+        <ListItem key={root.id} className={classes.node}>
           <SpecimenTreeNode node={root} />
         </ListItem>
       ))}
