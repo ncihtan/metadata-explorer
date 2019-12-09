@@ -27,7 +27,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "surge --project ./build --domain https://htan-metadata-explorer.surge.sh",
+    "build-and-deploy": "npm run build && npm run deploy"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -43,5 +45,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "surge": "^0.21.3"
   }
 }

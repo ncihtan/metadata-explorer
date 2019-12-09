@@ -142,28 +142,24 @@ function joinSheetsAsDf(
     columnNames: [config.biospecimenIdColumn, config.participantIdColumn]
   });
 
-  function joinOnId(left: DataFrame, right: DataFrame): DataFrame {
+  function joinOnColumn(
+    left: DataFrame,
+    right: DataFrame,
+    col: string
+  ): DataFrame {
     // @ts-ignore
-    return left.joinOuterLeft(
+    return left.joinOuter(
       right,
-      l => l[config.biospecimenIdColumn],
-      r => r[config.biospecimenIdColumn],
-      (l, r) => ({ ...l, ...omit(r, config.biospecimenIdColumn) })
+      l => l[col],
+      r => r[col],
+      (l, r) => ({ ...l, ...omit(r, col) })
     );
   }
 
-  const joinedDf = joinOnId(
-    joinOnId(
-      joinOnId(
-        joinOnId(
-          sheetDfs[config.biospecimenSheetTitle],
-          sheetDfs[config.temporalSheetTitle]
-        ),
-        sheetDfs[config.spatialSheetTitle]
-      ),
-      sheetDfs[config.clinicalSheetTitle]
-    ),
-    participantsDf
+  const joinedDf = joinOnColumn(
+    sheetDfs[config.biospecimenSheetTitle],
+    participantsDf,
+    config.biospecimenIdColumn
   );
 
   const sortedDf = joinedDf

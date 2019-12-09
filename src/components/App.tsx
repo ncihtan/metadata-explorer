@@ -1,8 +1,14 @@
 import React from "react";
 import { HTANMetadataExplorerStoreProvider } from "../data/store";
-import { Grid, createMuiTheme, ThemeProvider } from "@material-ui/core";
+import {
+  Grid,
+  createMuiTheme,
+  ThemeProvider,
+  makeStyles
+} from "@material-ui/core";
 import TopBar from "./top-bar/TopBar";
 import ExplorerPage from "./explorer/ExplorerPage";
+import Footer from "./footer/Footer";
 
 const theme = createMuiTheme({
   overrides: {
@@ -16,7 +22,15 @@ const theme = createMuiTheme({
   }
 });
 
+const useStyles = makeStyles({
+  content: {
+    minHeight: "60rem"
+  }
+});
+
 const App: React.FC = () => {
+  const classes = useStyles();
+
   return (
     <ThemeProvider theme={theme}>
       <HTANMetadataExplorerStoreProvider>
@@ -24,8 +38,11 @@ const App: React.FC = () => {
           <Grid item>
             <TopBar />
           </Grid>
-          <Grid item>
+          <Grid item className={classes.content}>
             <ExplorerPage />
+          </Grid>
+          <Grid item>
+            <Footer />
           </Grid>
         </Grid>
       </HTANMetadataExplorerStoreProvider>
