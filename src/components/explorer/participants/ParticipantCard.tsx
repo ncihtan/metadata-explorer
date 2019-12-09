@@ -4,6 +4,7 @@ import { useHTANMetadataExplorerStore } from "../../../data/store";
 import { Sheets } from "../../../data/sheetsClient";
 import ChipButton from "../ChipButton";
 import { Face } from "@material-ui/icons";
+import Header from "../Header";
 
 export interface ParticipantsListProps {
   sheets: Sheets;
@@ -29,7 +30,7 @@ const ParticipantCard: React.FC<ParticipantsListProps> = ({ sheets }) => {
 
   return (
     <Card>
-      <CardHeader title={"Participants"} />
+      <CardHeader title={<Header>Participants</Header>} />
       <CardContent>
         <Grid container spacing={1}>
           {ids.map(id => (

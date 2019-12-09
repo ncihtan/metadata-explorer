@@ -3,6 +3,7 @@ import { Card, CardHeader, CardContent, Typography } from "@material-ui/core";
 import { useHTANMetadataExplorerStore } from "../../../data/store";
 import MetadataTable from "./MetadataTable";
 import { Sheets } from "../../../data/sheetsClient";
+import Header from "../Header";
 
 export interface MetadataCardProps {
   sheets: Sheets;
@@ -15,9 +16,16 @@ const MetadataCard: React.FC<MetadataCardProps> = ({ sheets }) => {
     <Card>
       <CardHeader
         title={
-          !!store.selectedBiospecimenId
-            ? `Biospecimen Metadata: ${store.selectedBiospecimenId}`
-            : "Biospecimen Metadata"
+          <Header>
+            {!!store.selectedBiospecimenId ? (
+              <>
+                Biospecimen Metadata:{" "}
+                <strong>{store.selectedBiospecimenId}</strong>
+              </>
+            ) : (
+              "Biospecimen Metadata"
+            )}
+          </Header>
         }
       />
       <CardContent>

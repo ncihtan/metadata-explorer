@@ -4,11 +4,12 @@ import {
   List,
   ListItem,
   makeStyles,
-  Typography,
-  Grid
+  Grid,
+  IconButton,
+  Tooltip
 } from "@material-ui/core";
 import BiospecimenChip from "../BiospecimenChip";
-import { SubdirectoryArrowRight } from "@material-ui/icons";
+import { SubdirectoryArrowRight, Add, Remove } from "@material-ui/icons";
 
 const useStyles = makeStyles({
   node: {
@@ -33,11 +34,26 @@ const SpecimenTree: React.FC<SpecimenTreeProps> = props => {
   );
 };
 
+const ToggleOpen: React.FC<{ open: boolean; onClick: () => void }> = props => {
+  const title = props.open ? "Hide subsamples" : "Show subsamples";
+
+  return (
+    <Tooltip title={title}>
+      <IconButton size="small" onClick={props.onClick}>
+        {props.open ? <Remove /> : <Add />}
+      </IconButton>
+    </Tooltip>
+  );
+};
+
 const SpecimenTreeNode: React.FC<{ node: SpecTreeNode; icon?: boolean }> = ({
   node,
   icon
 }) => {
   const classes = useStyles();
+
+  const [open, setOpen] = React.useState<boolean>(false);
+  const toggleOpen = () => setOpen(!open);
 
   return (
     <>
@@ -49,10 +65,14 @@ const SpecimenTreeNode: React.FC<{ node: SpecTreeNode; icon?: boolean }> = ({
             </Grid>
           )}
           <Grid item>
-            <div className={classes.node}>
-              <BiospecimenChip id={node.id} />
-            </div>
+            <Grid container className={classes.node} alignItems="center">
+              <Grid item>
+                <BiospecimenChip id={node.id} />
+              </Grid>
+              {node.children && <ToggleOpen open={open} onClick={toggleOpen} />}
+            </Grid>
             {node.children &&
+              open &&
               node.children.map(child => (
                 <ListItem key={child.id} className={classes.node}>
                   <SpecimenTreeNode node={child} icon={true} />

@@ -5,6 +5,7 @@ import ChipButton from "../ChipButton";
 import { useHTANMetadataExplorerStore } from "../../../data/store";
 import SpecimenTree from "./SpecimenTree";
 import { Sheets } from "../../../data/sheetsClient";
+import Header from "../Header";
 
 export interface TimepointListProps {
   specimenTree: Sheets["specimenTree"];
@@ -42,8 +43,8 @@ const TimepointList: React.FC<TimepointListProps> = ({ specimenTree }) => {
         </Grid>
       </Grid>
       <Grid item>
-        <Divider light />
-        <Typography variant="h6">Biospecimens</Typography>
+        <Divider light style={{ marginBottom: ".5rem" }} />
+        <Header>Biospecimens</Header>
         {store.selectedTimepoint ? (
           <SpecimenTree treeRoots={specimenTree[store.selectedTimepoint]} />
         ) : (
