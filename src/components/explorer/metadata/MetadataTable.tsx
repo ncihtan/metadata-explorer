@@ -7,7 +7,8 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Tooltip
+  Tooltip,
+  Grid
 } from "@material-ui/core";
 import BiospecimenChip from "../BiospecimenChip";
 import omit from "lodash/omit";
@@ -32,31 +33,29 @@ const MetadataTable: React.FC<MetadataTableProps> = ({
     store.sheetsConfig.participantIdColumn
   ]);
 
-  const ids = sheets.df
-    .select(row => row[store.sheetsConfig.biospecimenIdColumn])
-    .where(id => id !== biospecimenId)
-    .toArray();
-
   // If a value is another biospecimen ID, make it a button
   const maybeBiospecimenChip = (value: string) => {
     if (!value) {
-      return null;
+      return <></>;
     }
 
     const values = value.split(", ");
 
     return (
-      <>
+      <Grid container spacing={1}>
         {values.map(v =>
-          ids.includes(v) ? (
-            <Tooltip title="Jump to this Biospecimen">
-              <BiospecimenChip id={v} />
-            </Tooltip>
+          // @ts-ignore
+          sheets.df.at(v) ? (
+            <Grid item key={v}>
+              <Tooltip title="Jump to this Biospecimen">
+                <BiospecimenChip id={v} />
+              </Tooltip>
+            </Grid>
           ) : (
-            <>{v}</>
+            <div key={v}>{v}</div>
           )
         )}
-      </>
+      </Grid>
     );
   };
 

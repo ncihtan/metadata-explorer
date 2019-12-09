@@ -1,19 +1,19 @@
 import React from "react";
-import { Grid, List, Typography, Divider, ListItem } from "@material-ui/core";
+import { Grid, Typography, Divider } from "@material-ui/core";
 import { AccessTime } from "@material-ui/icons";
 import ChipButton from "../ChipButton";
 import { useHTANMetadataExplorerStore } from "../../../data/store";
-import groupBy from "lodash/groupBy";
-import SpecimenTypeList from "./SpecimenTypeList";
+import SpecimenTree from "./SpecimenTree";
+import { Sheets } from "../../../data/sheetsClient";
 
 export interface TimepointListProps {
-  timepointMap: { [timepoint: string]: any[] };
+  specimenTree: Sheets["specimenTree"];
 }
 
-const TimepointList: React.FC<TimepointListProps> = ({ timepointMap }) => {
+const TimepointList: React.FC<TimepointListProps> = ({ specimenTree }) => {
   const { store, dispatch } = useHTANMetadataExplorerStore();
 
-  const timepoints = Object.keys(timepointMap);
+  const timepoints = Object.keys(specimenTree);
 
   const setTimepoint = (label: string) =>
     dispatch({ type: "selectedTimepoint", payload: label });
@@ -24,14 +24,6 @@ const TimepointList: React.FC<TimepointListProps> = ({ timepointMap }) => {
       setTimepoint(timepoints[0]);
     }
   }, [store.selectedTimepoint, timepoints]);
-
-  const biospecimens =
-    store.selectedTimepoint && timepointMap[store.selectedTimepoint];
-
-  // Group specimens by type
-  const typeMap =
-    biospecimens &&
-    groupBy(biospecimens, store.sheetsConfig.biospecimenTypeColumn);
 
   return (
     <Grid container spacing={2} direction="column">
@@ -51,20 +43,9 @@ const TimepointList: React.FC<TimepointListProps> = ({ timepointMap }) => {
       </Grid>
       <Grid item>
         <Divider light />
-        {typeMap ? (
-          <List>
-            {Object.keys(typeMap).map(t => {
-              return (
-                <ListItem>
-                  <SpecimenTypeList
-                    key={t}
-                    type={t}
-                    biospecimens={typeMap[t]}
-                  />
-                </ListItem>
-              );
-            })}
-          </List>
+        <Typography variant="h6">Biospecimens</Typography>
+        {store.selectedTimepoint ? (
+          <SpecimenTree treeRoots={specimenTree[store.selectedTimepoint]} />
         ) : (
           <Typography color="textSecondary">Select a timepoint</Typography>
         )}

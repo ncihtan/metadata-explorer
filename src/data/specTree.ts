@@ -5,12 +5,17 @@ interface SpecListItem {
   parent: string;
 }
 
-interface SpecTreeNode {
+export interface SpecTreeNode {
   id: string;
   root?: boolean;
   children?: SpecTreeNode[];
 }
 
+/**
+ * Build a list of biospecimen provenance trees.
+ * @param specs A list of biospecimen info (id and parent id).
+ * @returns a list of tree root nodes.
+ */
 export function buildSpecTree(specs: SpecListItem[]): SpecTreeNode[] {
   let nodeMap: { [id: string]: SpecTreeNode } = {};
   for (const spec of specs) {

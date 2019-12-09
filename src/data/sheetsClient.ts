@@ -2,7 +2,8 @@ import axios from "axios";
 import omit from "lodash/omit";
 import mapValues from "lodash/mapValues";
 import { DataFrame } from "data-forge";
-import { buildSpecTree } from "./specTree";
+import { buildSpecTree, SpecTreeNode } from "./specTree";
+import groupBy from "lodash/groupBy";
 
 interface Unfetched {
   status: "unfetched";
@@ -27,6 +28,7 @@ type Fetch<T> = Unfetched | WillFetch | FetchError | FetchSuccess<T>;
 export interface Sheets {
   title: string;
   sheets: { [sheetName: string]: string[][] };
+  specimenTree: { [timepoint: string]: SpecTreeNode[] };
   df: DataFrame;
 }
 
@@ -43,7 +45,7 @@ export interface SheetsConfig {
   spatialSheetTitle: string;
 }
 
-export type SheetsApiResult = Fetch<Sheets>;
+export type SheetsData = Fetch<Sheets>;
 
 /**
  * Extract the spreadsheet ID from a gooogle sheets link.
@@ -93,7 +95,7 @@ function buildHTANSheets(
 
   const df = joinSheetsAsDf(sheets, config);
 
-  buildSpecTree(
+  const specTreeRoots = buildSpecTree(
     df
       .select(row => ({
         id: row[config.biospecimenIdColumn],
@@ -103,9 +105,17 @@ function buildHTANSheets(
       .toArray()
   );
 
+  const specimenTree = groupBy(specTreeRoots, root =>
+    df
+      .where(row => row[config.biospecimenIdColumn] === root.id)
+      .select(row => row[config.timepointColumn])
+      .first()
+  );
+
   return {
     title,
     sheets,
+    specimenTree,
     df
   };
 }
@@ -164,7 +174,8 @@ function joinSheetsAsDf(
     .orderBy(row =>
       // Order by Biospecimen ID
       parseInt(row[config.biospecimenIdColumn].split("_").slice(-1))
-    );
+    )
+    .setIndex(config.biospecimenIdColumn);
 
   // @ts-ignore
   return sortedDf;
@@ -173,7 +184,7 @@ function joinSheetsAsDf(
 export async function fetchSheets(
   sheetsUrl: string,
   config: SheetsConfig
-): Promise<SheetsApiResult> {
+): Promise<SheetsData> {
   const sheetId = parseGoogleSheetsUrl(sheetsUrl);
 
   if (!sheetId) {

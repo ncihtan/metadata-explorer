@@ -14,7 +14,7 @@ export interface ChipButtonProps
   selected?: boolean;
 }
 
-const ChipButton: React.FC<ChipButtonProps> = props => {
+const ChipButton: React.FC<ChipButtonProps> = React.forwardRef((props, ref) => {
   const classes = useStyles();
 
   const color = props.selected ? "primary" : "default";
@@ -23,12 +23,13 @@ const ChipButton: React.FC<ChipButtonProps> = props => {
   return (
     <Chip
       {...props}
+      ref={ref}
       className={classes.root}
       color={color}
       variant={variant}
       clickable
     />
   );
-};
+});
 
 export default ChipButton;

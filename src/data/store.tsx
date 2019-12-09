@@ -1,5 +1,5 @@
 import React from "react";
-import { fetchSheets, SheetsApiResult, SheetsConfig } from "./sheetsClient";
+import { fetchSheets, SheetsData, SheetsConfig } from "./sheetsClient";
 import omit from "lodash/omit";
 
 type ActionBuilder<T, P> = { type: T; payload: P };
@@ -14,7 +14,7 @@ type Action =
 
 interface State {
   refresh: boolean;
-  sheets: SheetsApiResult;
+  sheets: SheetsData;
   sheetsUrl?: string;
   sheetsConfig: SheetsConfig;
   selectedTimepoint?: string;
