@@ -15,6 +15,9 @@ const useStyles = makeStyles({
   node: {
     paddingTop: 2,
     paddingBottom: 2
+  },
+  hidden: {
+    display: "none"
   }
 });
 
@@ -73,13 +76,15 @@ const SpecimenTreeNode: React.FC<{ node: SpecTreeNode; icon?: boolean }> = ({
               </Grid>
               {node.children && <ToggleOpen open={open} onClick={toggleOpen} />}
             </Grid>
-            {node.children &&
-              open &&
-              node.children.map(child => (
-                <ListItem key={child.id} className={classes.node}>
-                  <SpecimenTreeNode node={child} icon={true} />
-                </ListItem>
-              ))}
+            {node.children && (
+              <div className={open ? "" : classes.hidden}>
+                {node.children.map(child => (
+                  <ListItem key={child.id} className={classes.node}>
+                    <SpecimenTreeNode node={child} icon={true} />
+                  </ListItem>
+                ))}
+              </div>
+            )}
           </Grid>
         </Grid>
       </List>
