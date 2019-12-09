@@ -87,6 +87,7 @@ export const HTANMetadataExplorerStoreProvider: React.FC = props => {
   // A callback that retriggers on changes to the sheetsUrl or sheetsConfig
   const hydrate = React.useCallback(() => {
     if (store.sheetsUrl) {
+      localStorage.setItem(sheetsUrlStorageKey, store.sheetsUrl);
       dispatch({ type: "sheets", payload: { status: "will-fetch" } });
       fetchSheets(store.sheetsUrl, store.sheetsConfig).then(sheets => {
         dispatch({
@@ -99,6 +100,7 @@ export const HTANMetadataExplorerStoreProvider: React.FC = props => {
         });
       });
     } else {
+      localStorage.removeItem(sheetsUrlStorageKey);
       dispatch({ type: "sheets", payload: { status: "unfetched" } });
     }
   }, [store.sheetsUrl, store.sheetsConfig]);
