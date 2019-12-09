@@ -16,15 +16,17 @@ const TimepointList: React.FC<TimepointListProps> = ({ specimenTree }) => {
 
   const timepoints = Object.keys(specimenTree);
 
-  const setTimepoint = (label: string) =>
-    dispatch({ type: "selectedTimepoint", payload: label });
+  const setTimepoint = React.useCallback(
+    (label: string) => dispatch({ type: "selectedTimepoint", payload: label }),
+    [dispatch]
+  );
 
   // Select the first timepoint in the list on first render
   React.useEffect(() => {
     if (!store.selectedTimepoint) {
       setTimepoint(timepoints[0]);
     }
-  }, [store.selectedTimepoint, timepoints]);
+  }, [store.selectedTimepoint, timepoints, setTimepoint]);
 
   return (
     <Grid container spacing={2} direction="column">

@@ -18,15 +18,17 @@ const ParticipantCard: React.FC<ParticipantsListProps> = ({ sheets }) => {
     .distinct()
     .toArray();
 
-  const setParticipant = (id: string) =>
-    dispatch({ type: "selectedParticipantId", payload: id });
+  const setParticipant = React.useCallback(
+    (id: string) => dispatch({ type: "selectedParticipantId", payload: id }),
+    [dispatch]
+  );
 
   // Select the first participant in the list on first render
   React.useEffect(() => {
     if (!store.selectedParticipantId) {
       setParticipant(ids[0]);
     }
-  }, [store.selectedParticipantId, ids]);
+  }, [store.selectedParticipantId, ids, setParticipant]);
 
   return (
     <Card>
