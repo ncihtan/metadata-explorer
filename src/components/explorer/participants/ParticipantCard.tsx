@@ -1,16 +1,16 @@
 import React from "react";
-import { Card, CardHeader, CardContent, Grid } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import { useHTANMetadataExplorerStore } from "../../../data/store";
 import ChipButton from "../ChipButton";
 import { Face } from "@material-ui/icons";
-import Header from "../Header";
 import { useExplorerContext } from "../ExplorerPage";
+import MultipartCard from "../MultipartCard";
 
 const ParticipantCard: React.FC = () => {
   const { store, dispatch } = useHTANMetadataExplorerStore();
   const { sheets } = useExplorerContext();
 
-  const ids = sheets.df
+  const ids = sheets.dfs.biospecimens
     .select(row => row[store.sheetsConfig.participantIdColumn])
     .distinct()
     .toArray();
@@ -28,23 +28,27 @@ const ParticipantCard: React.FC = () => {
   }, [store.selectedParticipantId, ids, setParticipant]);
 
   return (
-    <Card>
-      <CardHeader title={<Header>Participants</Header>} />
-      <CardContent>
-        <Grid container spacing={1}>
-          {ids.map(id => (
-            <Grid item key={id}>
-              <ChipButton
-                label={id}
-                avatar={<Face />}
-                onClick={() => setParticipant(id)}
-                selected={id === store.selectedParticipantId}
-              />
+    <MultipartCard
+      sections={[
+        {
+          header: "Participants",
+          body: (
+            <Grid container spacing={1}>
+              {ids.map(id => (
+                <Grid item key={id}>
+                  <ChipButton
+                    label={id}
+                    avatar={<Face />}
+                    onClick={() => setParticipant(id)}
+                    selected={id === store.selectedParticipantId}
+                  />
+                </Grid>
+              ))}
             </Grid>
-          ))}
-        </Grid>
-      </CardContent>
-    </Card>
+          )
+        }
+      ]}
+    />
   );
 };
 

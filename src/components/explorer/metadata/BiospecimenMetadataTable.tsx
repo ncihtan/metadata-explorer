@@ -13,18 +13,19 @@ import {
 import BiospecimenChip from "../BiospecimenChip";
 import omit from "lodash/omit";
 
-export interface MetadataTableProps {
+export interface BiospecimenMetadataTableProps {
   sheets: Sheets;
   biospecimenId: string;
 }
 
-const MetadataTable: React.FC<MetadataTableProps> = ({
+const BiospecimenMetadataTable: React.FC<BiospecimenMetadataTableProps> = ({
   sheets,
   biospecimenId
 }) => {
   const { store } = useHTANMetadataExplorerStore();
+  const bioDf = sheets.dfs.biospecimens;
 
-  const biospecimen = sheets.df
+  const biospecimen = bioDf
     .where(r => r[store.sheetsConfig.biospecimenIdColumn] === biospecimenId)
     .first();
 
@@ -45,7 +46,7 @@ const MetadataTable: React.FC<MetadataTableProps> = ({
       <Grid container spacing={1}>
         {values.map(v =>
           // @ts-ignore
-          sheets.df.at(v) ? (
+          bioDf.at(v) ? (
             <Grid item key={v}>
               <Tooltip title="Jump to this Biospecimen">
                 <BiospecimenChip id={v} />
@@ -73,4 +74,4 @@ const MetadataTable: React.FC<MetadataTableProps> = ({
   );
 };
 
-export default MetadataTable;
+export default BiospecimenMetadataTable;

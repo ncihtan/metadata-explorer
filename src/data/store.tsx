@@ -59,14 +59,14 @@ const initialState: State = {
   sheets: { status: cachedSheetsUrl ? "will-fetch" : "unfetched" },
   sheetsUrl: cachedSheetsUrl,
   sheetsConfig: {
-    participantIdColumn: "HTAN_PARTICIPANT_ID",
+    participantIdColumn: "HTAN Participant ID",
     biospecimenIdColumn: "HTAN_BIOSPECIMEN_ID",
     timepointColumn: "TIMEPOINT_LABEL",
     biospecimenTypeColumn: "BIOSPECIMEN_TYPE",
     biospecimenNeighborColumn: "ADJACENT_BIOSPECIMEN",
     biospecimenParentColumn: "PARENT_ID",
     biospecimenSheetTitle: "Biospecimens",
-    clinicalSheetTitle: "Clinical - Demographic",
+    clinicalSheetTitle: "Clinical - Demographics",
     temporalSheetTitle: "Biospecimen Temporal Relationships",
     spatialSheetTitle: "Biospecimen Spatial Relationships"
   }

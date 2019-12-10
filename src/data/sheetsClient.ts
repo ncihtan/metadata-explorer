@@ -29,7 +29,7 @@ export interface Sheets {
   title: string;
   sheets: { [sheetName: string]: string[][] };
   specimenTree: { [timepoint: string]: SpecTreeNode[] };
-  df: DataFrame;
+  dfs: { biospecimens: DataFrame; clinical: DataFrame };
 }
 
 export interface SheetsConfig {
@@ -93,10 +93,10 @@ function buildHTANSheets(
     return { ...acc, [sheet.properties!.title!]: rawData };
   }, {} as Sheets["sheets"]);
 
-  const df = joinSheetsAsDf(sheets, config);
+  const dfs = getDfs(sheets, config);
 
   const specTreeRoots = buildSpecTree(
-    df
+    dfs.biospecimens
       .select(row => ({
         id: row[config.biospecimenIdColumn],
         parent: row[config.biospecimenParentColumn],
@@ -106,7 +106,7 @@ function buildHTANSheets(
   );
 
   const specimenTree = groupBy(specTreeRoots, root =>
-    df
+    dfs.biospecimens
       .where(row => row[config.biospecimenIdColumn] === root.id)
       .select(row => row[config.timepointColumn])
       .first()
@@ -116,14 +116,11 @@ function buildHTANSheets(
     title,
     sheets,
     specimenTree,
-    df
+    dfs
   };
 }
 
-function joinSheetsAsDf(
-  sheets: Sheets["sheets"],
-  config: SheetsConfig
-): DataFrame {
+function getDfs(sheets: Sheets["sheets"], config: SheetsConfig): Sheets["dfs"] {
   const sheetDfs = mapValues(sheets, data => {
     const [columnNames, ...rows] = data;
     return new DataFrame({ columnNames, rows });
@@ -162,7 +159,7 @@ function joinSheetsAsDf(
     config.biospecimenIdColumn
   );
 
-  const sortedDf = joinedDf
+  const biospecimens = joinedDf
     .orderBy(row =>
       // Order by Participant ID
       parseInt(row[config.participantIdColumn].split("_").slice(-1))
@@ -173,8 +170,12 @@ function joinSheetsAsDf(
     )
     .setIndex(config.biospecimenIdColumn);
 
+  const clinical = sheetDfs[config.clinicalSheetTitle]
+    .setIndex(config.participantIdColumn)
+    .orderBy((_, index) => index);
+
   // @ts-ignore
-  return sortedDf;
+  return { biospecimens, clinical };
 }
 
 export async function fetchSheets(

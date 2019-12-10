@@ -1,43 +1,71 @@
 import React from "react";
-import { Card, CardHeader, CardContent, Typography } from "@material-ui/core";
+import {
+  Typography,
+  Table,
+  TableBody,
+  TableRow,
+  TableCell
+} from "@material-ui/core";
 import { useHTANMetadataExplorerStore } from "../../../data/store";
-import MetadataTable from "./MetadataTable";
-import Header from "../Header";
+import BiospecimenMetadataTable from "./BiospecimenMetadataTable";
 import { useExplorerContext } from "../ExplorerPage";
+import map from "lodash/map";
+import MultipartCard from "../MultipartCard";
 
 const MetadataCard: React.FC = () => {
   const { store } = useHTANMetadataExplorerStore();
   const { sheets } = useExplorerContext();
 
   return (
-    <Card>
-      <CardHeader
-        title={
-          <Header>
-            {!!store.selectedBiospecimenId ? (
-              <>
-                Biospecimen Metadata:{" "}
-                <strong>{store.selectedBiospecimenId}</strong>
-              </>
-            ) : (
-              "Biospecimen Metadata"
-            )}
-          </Header>
+    <MultipartCard
+      sections={[
+        {
+          header: (
+            <>
+              Clinical Metadata (<strong>{store.selectedParticipantId}</strong>)
+            </>
+          ),
+          body: (
+            <Table size="small">
+              <TableBody>
+                {map(
+                  // @ts-ignore
+                  sheets.dfs.clinical.at(store.selectedParticipantId!),
+                  (value: string, key: string) => (
+                    <TableRow key={key}>
+                      <TableCell>{key.toUpperCase()}</TableCell>
+                      <TableCell>{value}</TableCell>
+                    </TableRow>
+                  )
+                )}
+              </TableBody>
+            </Table>
+          )
+        },
+        {
+          header: (
+            <>
+              Biospecimen Metadata{" "}
+              {store.selectedBiospecimenId && (
+                <>
+                  (<strong>{store.selectedBiospecimenId}</strong>)
+                </>
+              )}
+            </>
+          ),
+          body: store.selectedBiospecimenId ? (
+            <BiospecimenMetadataTable
+              sheets={sheets}
+              biospecimenId={store.selectedBiospecimenId}
+            />
+          ) : (
+            <Typography color="textSecondary">
+              Select a biospecimen to view its metadata.
+            </Typography>
+          )
         }
-      />
-      <CardContent>
-        {store.selectedBiospecimenId ? (
-          <MetadataTable
-            sheets={sheets}
-            biospecimenId={store.selectedBiospecimenId}
-          />
-        ) : (
-          <Typography color="textSecondary">
-            Select a biospecimen to view its metadata.
-          </Typography>
-        )}
-      </CardContent>
-    </Card>
+      ]}
+    />
   );
 };
 

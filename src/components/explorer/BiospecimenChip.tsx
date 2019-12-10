@@ -17,7 +17,7 @@ const BiospecimenChip: React.FC<BiospecimenChipProps> = React.forwardRef(
       dispatch({ type: "selectedBiospecimenId", payload: id });
 
     // @ts-ignore
-    const biospecimen = sheets.df.at(props.id);
+    const biospecimen = sheets.dfs.biospecimens.at(props.id);
 
     const label =
       props.id +
