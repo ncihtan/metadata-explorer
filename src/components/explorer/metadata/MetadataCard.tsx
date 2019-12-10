@@ -2,15 +2,12 @@ import React from "react";
 import { Card, CardHeader, CardContent, Typography } from "@material-ui/core";
 import { useHTANMetadataExplorerStore } from "../../../data/store";
 import MetadataTable from "./MetadataTable";
-import { Sheets } from "../../../data/sheetsClient";
 import Header from "../Header";
+import { useExplorerContext } from "../ExplorerPage";
 
-export interface MetadataCardProps {
-  sheets: Sheets;
-}
-
-const MetadataCard: React.FC<MetadataCardProps> = ({ sheets }) => {
+const MetadataCard: React.FC = () => {
   const { store } = useHTANMetadataExplorerStore();
+  const { sheets } = useExplorerContext();
 
   return (
     <Card>

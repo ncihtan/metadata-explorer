@@ -1,14 +1,12 @@
 import React from "react";
 import { Card, CardHeader, CardContent } from "@material-ui/core";
-import { Sheets } from "../../../data/sheetsClient";
 import TimepointList from "./TimepointList";
 import Header from "../Header";
+import { useExplorerContext } from "../ExplorerPage";
 
-export interface TimepointCardProps {
-  sheets: Sheets;
-}
+const TimepointCard: React.FC = () => {
+  const { sheets } = useExplorerContext();
 
-const TimepointCard: React.FC<TimepointCardProps> = ({ sheets }) => {
   return (
     <Card>
       <CardHeader title={<Header>Timepoints</Header>} />

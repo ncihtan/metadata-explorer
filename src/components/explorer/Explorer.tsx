@@ -1,6 +1,5 @@
 import React from "react";
 import { Grid } from "@material-ui/core";
-import { Sheets } from "../../data/sheetsClient";
 import ParticipantCard from "./participants/ParticipantCard";
 import TimepointCard from "./timepoints/TimepointCard";
 import { makeStyles } from "@material-ui/styles";
@@ -19,11 +18,7 @@ const useStyles = makeStyles({
   }
 });
 
-export interface ExplorerProps {
-  sheets: Sheets;
-}
-
-const Explorer: React.FC<ExplorerProps> = ({ sheets }) => {
+const Explorer: React.FC = () => {
   const classes = useStyles();
 
   return (
@@ -31,15 +26,15 @@ const Explorer: React.FC<ExplorerProps> = ({ sheets }) => {
       <Grid item className={classes.left}>
         <Grid container spacing={2} alignItems="center" direction="column">
           <Grid item>
-            <ParticipantCard sheets={sheets} />
+            <ParticipantCard />
           </Grid>
           <Grid item>
-            <TimepointCard sheets={sheets} />
+            <TimepointCard />
           </Grid>
         </Grid>
       </Grid>
       <Grid item className={classes.right}>
-        <MetadataCard sheets={sheets} />
+        <MetadataCard />
       </Grid>
     </Grid>
   );

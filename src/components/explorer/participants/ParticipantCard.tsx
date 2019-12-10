@@ -1,17 +1,14 @@
 import React from "react";
 import { Card, CardHeader, CardContent, Grid } from "@material-ui/core";
 import { useHTANMetadataExplorerStore } from "../../../data/store";
-import { Sheets } from "../../../data/sheetsClient";
 import ChipButton from "../ChipButton";
 import { Face } from "@material-ui/icons";
 import Header from "../Header";
+import { useExplorerContext } from "../ExplorerPage";
 
-export interface ParticipantsListProps {
-  sheets: Sheets;
-}
-
-const ParticipantCard: React.FC<ParticipantsListProps> = ({ sheets }) => {
+const ParticipantCard: React.FC = () => {
   const { store, dispatch } = useHTANMetadataExplorerStore();
+  const { sheets } = useExplorerContext();
 
   const ids = sheets.df
     .select(row => row[store.sheetsConfig.participantIdColumn])
