@@ -1,0 +1,14 @@
+language: node_js
+node_js:
+  - node
+install:
+  - npm install
+script:
+  - npm test
+  - npm run build
+deploy:
+  - provider: surge
+    project: ./build/
+    domain: htan-metadata-explorer.surge.sh
+    on:
+      branch: master

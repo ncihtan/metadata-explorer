@@ -2,11 +2,6 @@
 
 Import and visualize example metadata from a Google Sheets project.
 
-The site is live here: https://htan-metadata-explorer.surge.sh/
-
-
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
 ## Development
 
 ### `npm start`
