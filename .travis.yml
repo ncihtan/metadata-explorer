@@ -7,6 +7,8 @@ script:
   - npm test
   - npm run build
 deploy:
+  # NOTE: the SURGE_LOGIN and SURGE_TOKEN environment variables must be set
+  # for this to work.
   - provider: surge
     project: ./build/
     domain: htan-metadata-explorer.surge.sh
