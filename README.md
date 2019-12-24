@@ -1,4 +1,4 @@
-# HTAN Metadata Explorer
+# HTAN Metadata Explorer [![Build Status](https://travis-ci.org/ncihtan/metadata-explorer.svg?branch=master)](https://travis-ci.org/ncihtan/metadata-explorer)
 
 Import and visualize example metadata from a Google Sheets project.
 
